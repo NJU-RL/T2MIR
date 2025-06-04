@@ -1,0 +1,66 @@
+# environment
+env_name: WalkerRandParams-v0
+data_type: mixed
+max_episode_steps: 200
+num_tasks: 50
+
+# collecting data
+tau: 0.005  # soft update rate
+alpha: 0.2  # temperature parameter alpha determines the relative importance of the entropy term against the reward
+sac_lr: 0.0003  # learning rate
+gamma: 0.99  # discount factor for reward
+sac_batch_size: 256  # batch size
+sac_hidden_dim: 128  # hidden dim
+num_eval_episodes: 2  # evaluation episodes
+start_step: 2000  # steps sampling random actions
+num_steps: 1000000  # maximum number of timesteps
+model_save_freq: 10000  # frequency of saving model
+capacity: 100000  # capacity of replay buffer
+
+# training
+training_tasks: 45
+eval_tasks: [45, 46, 47, 48, 49]
+warmup_steps: 5000
+total_steps: 100000
+eval_freq: 1000
+batch_size: 32
+prompt_episode_horizon: 1
+prompt_horizon: 200
+lr: 0.0003
+weight_decay: 0.0001
+max_grad_norm: 1.0
+return_scale: 1.0
+hidden_dim: 128
+ff_dim: [512, 512, 512, 768]
+n_layer: 4
+n_head: 4
+ff_pdrop: 0.05
+ff_moe_pdrop: 0.05
+emb_pdrop: 0.05
+attn_pdrop: 0.05
+activation_function: gelu_new
+
+moe_config:
+  moe_layers_contrastive_and_balance: [3]
+  task_hard_router: False
+  use_top_k_indices: False
+  add_softmax: False
+  detach_gate_input: False
+
+  num_experts: 6
+  num_selects: 2
+  expert_dim: 1536
+  gate_balance_loss_weight: 0.01
+  gate_add_noise: True
+  gate_noise_epsilon: 0.01
+
+  tau: 0.005
+  contrastive_loss_weight: 0.01
+  num_experts_contrastive: 8
+  num_selects_contrastive: 2
+  expert_dim_contrastive: 2048
+
+# evaluation
+target_return: null
+eval_episodes: 40
+eval_horizon: 200

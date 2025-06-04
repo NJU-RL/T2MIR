@@ -1,0 +1,52 @@
+# environment
+env_name: DarkRoom-v0
+data_type: mixed
+max_episode_steps: 20
+num_tasks: 81
+
+# training
+training_tasks: 65
+eval_tasks: [65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80]
+warmup_steps: 5000
+total_steps: 200000
+eval_freq: 2000
+batch_size: 32
+prompt_episode_horizon: 1
+prompt_horizon: 20
+lr: 0.0003
+weight_decay: 0.0001
+max_grad_norm: 1.
+hidden_dim: 128
+ff_dim: [512, 512, 768]
+n_layer: 3
+n_head: 8
+ff_pdrop: 0.05
+ff_moe_pdrop: 0.05
+emb_pdrop: 0.05
+attn_pdrop: 0.05
+activation_function: leaky_relu
+
+moe_config:
+  moe_layers_contrastive_and_balance: [2]
+  task_hard_router: False
+  use_top_k_indices: False
+  add_softmax: False
+  detach_gate_input: False
+
+  num_experts: 6
+  num_selects: 2
+  expert_dim: 1536
+  gate_balance_loss_weight: 0.01
+  gate_add_noise: True
+  gate_noise_epsilon: 0.01
+
+  tau: 0.005
+  contrastive_loss_weight: 0.001
+  num_experts_contrastive: 8
+  num_selects_contrastive: 2
+  expert_dim_contrastive: 2048
+
+# evaluation
+target_return: null
+eval_episodes: 100
+eval_horizon: 100

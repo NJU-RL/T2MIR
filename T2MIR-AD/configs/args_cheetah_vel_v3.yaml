@@ -1,0 +1,54 @@
+# environment
+env_name: HalfCheetahVel-v3
+data_type: mixed
+max_episode_steps: 200
+num_tasks: 48
+
+# training
+training_tasks: 42
+eval_tasks: [42, 43, 44, 45, 46, 47]
+warmup_steps: 10000
+total_steps: 100000
+eval_freq: 1000
+batch_size: 24
+train_episode_horizon: 4
+lr: 0.0003
+weight_decay: 0.0001
+max_grad_norm: 1.
+return_scale: 200.
+tstep_dim: 128
+hidden_dim: 256
+# ff_dim: 1024
+ff_dim: [1024, 1024, 1536]
+n_layer: 3
+n_head: 8
+ff_pdrop: 0.05
+ff_moe_pdrop: 0.05
+emb_pdrop: 0.05
+attn_pdrop: 0.05
+activation_function: leaky_relu
+
+moe_config:
+  moe_layers_contrastive_and_balance: [2]
+  task_hard_router: True
+  use_top_k_indices: False
+  add_softmax: False
+  detach_gate_input: False
+
+  num_experts: 6
+  num_selects: 2
+  expert_dim: 3072
+  gate_balance_loss_weight: 0.1
+  gate_add_noise: True
+  gate_noise_epsilon: 0.01
+
+  tau: 0.005
+  contrastive_loss_weight: 0.01
+  num_experts_contrastive: 8
+  num_selects_contrastive: 2
+  expert_dim_contrastive: 4096
+
+# evaluation
+target_return: null
+eval_episodes: 30
+eval_horizon: 800
