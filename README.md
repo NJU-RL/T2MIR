@@ -1,6 +1,7 @@
 # Mixture-of-Experts Meets In-Context Reinforcement Learning
 ## Overview
 Official codebase for T2MIR: Mixture-of-Experts Meets In-Context Reinforcement Learning.
+([arXiv](https://arxiv.org/abs/2506.05426) and [Hugging Face](https://huggingface.co/papers/2506.05426))
 
 ![T2MIR](./T2MIR.png)
 
