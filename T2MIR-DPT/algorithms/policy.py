@@ -1,6 +1,6 @@
 import torch
-import torch.nn as nn
 import transformers
+import torch.nn as nn
 transformers.set_seed(0)
 from torch import Tensor
 from transformers import GPT2Config

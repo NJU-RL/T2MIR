@@ -1,5 +1,4 @@
 import numpy as np
-
 from typing import List, Dict, Optional
 
 from environments.tp_envs.walker_rand_params_wrapper import Walker2DRandParamsEnv

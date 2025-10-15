@@ -18,7 +18,7 @@ max_grad_norm: 1.
 return_scale: 200.
 tstep_dim: 128
 hidden_dim: 256
-ff_dim: [1024, 1024, 1536]
+ff_dim: [1024, 1024, 1536]  # dimensions of the feedforward layers
 n_layer: 3
 n_head: 8
 ff_pdrop: 0.05
@@ -28,7 +28,7 @@ attn_pdrop: 0.05
 activation_function: leaky_relu
 
 moe_config:
-  moe_layers_contrastive_and_balance: [2]
+  moe_layers_contrastive_and_balance: [2]  # the positions of the parallel moe layers
   task_hard_router: False
   use_top_k_indices: False
   add_softmax: True
@@ -36,7 +36,7 @@ moe_config:
 
   num_experts: 6
   num_selects: 2
-  expert_dim: 3072
+  expert_dim: 3072  # the dimension of total experts, for each expert, the dimension is expert_dim/num_experts
   gate_balance_loss_weight: 0.1
   gate_add_noise: True
   gate_noise_epsilon: 0.01
@@ -49,5 +49,5 @@ moe_config:
 
 # evaluation
 target_return: null
-eval_episodes: 30
-eval_horizon: 800
+eval_episodes: 30  # number of episodes for evaluation
+eval_horizon: 800  # context length

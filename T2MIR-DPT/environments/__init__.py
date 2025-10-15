@@ -1,6 +1,5 @@
 # import warnings
 # warnings.filterwarnings("ignore")
-
 from gymnasium.envs.registration import register
 
 # point robot
@@ -20,11 +19,11 @@ register(
 )
 
 # half cheetah vel
-register(
-    id='HalfCheetahVel-v3',
-    entry_point='environments.halfcheetah_vel:HalfCheetahVelEnv',
-    max_episode_steps=200,
-)
+# register(
+#     id='HalfCheetahVel-v3',
+#     entry_point='environments.halfcheetah_vel:HalfCheetahVelEnv',
+#     max_episode_steps=200,
+# )
 
 # walker
 register(

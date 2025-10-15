@@ -1,13 +1,10 @@
 import os
-from os import path
-
 import numpy as np
-from gymnasium.envs.mujoco import mujoco_env
 from gymnasium import spaces
+from gymnasium.envs.mujoco import mujoco_env
 
 
 ENV_ASSET_DIR = os.path.join(os.path.dirname(__file__), 'assets')
-
 
 class MujocoEnv(mujoco_env.MujocoEnv):
     """

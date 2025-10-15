@@ -57,43 +57,6 @@ class AD_Dataset(Dataset):
     def __len__(self) -> int:
         return self.dataset_size
 
-    def __getitem__(self, index) -> List[np.ndarray]:
-        task_id = self.task_index[index]
-        episode_id = self.episode_index[index]
-        return [self.datasets[key][task_id, episode_id].reshape(self.horizon, -1) for key in self.keys]
-
-    def sample_all_tasks(self, batch_size: int, expert_episodes: bool = True, range_episodes: bool = False):
-        if range_episodes:
-            assert batch_size == 1
-
-        dataset = {key: [] for key in self.keys}
-        for task_id in range(self.num_tasks):
-            for _ in range(batch_size):
-                if expert_episodes:
-                    start_episode_id = int(self.num_episodes * 0.8)
-                    episode_ids = np.sort(np.random.choice(self.num_episodes - start_episode_id, self.train_episode_horizon, replace=False)) + start_episode_id
-                elif range_episodes:
-                    episode_ids = np.linspace(0, self.num_episodes, self.train_episode_horizon, endpoint=False, dtype=int)
-                else:
-                    episode_ids = np.sort(np.random.choice(self.num_episodes, self.train_episode_horizon, replace=False))
-                for key in self.keys:
-                    dataset[key].append(self.datasets[key][task_id, episode_ids])
-        return [np.stack(dataset[key], axis=0).reshape(self.num_tasks, batch_size, self.train_episode_horizon*self.max_episode_steps, dataset[key][0].shape[-1]) for key in self.keys]
-
-    def generate_index(self) -> None:
-        self.task_index = np.arange(self.num_tasks).reshape(1, -1).repeat(self.dataset_size // self.num_tasks + 1, axis=0).reshape(-1)[:self.dataset_size]
-        self.episode_index = np.zeros([0, self.train_episode_horizon], dtype=int)
-        size = self.dataset_size
-        while size != 0:
-            index = np.sort(np.random.randint(0, self.num_episodes, [max(size, 1000), self.train_episode_horizon]))
-            # check
-            for i in range(self.train_episode_horizon - 1):
-                index = index[index[:, i] != index[:, i+1]]
-            if index.shape[0] > size:
-                index = index[:size]
-            size -= index.shape[0]
-            self.episode_index = np.concatenate([self.episode_index, index], axis=0)
-
     def normalize_states(self, dataset, state_mean: Optional[np.ndarray] = None, state_std: Optional[np.ndarray] = None) -> None:
         if state_mean is None:
             states = dataset['states'].reshape(-1, dataset['states'].shape[-1])

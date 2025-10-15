@@ -31,7 +31,7 @@ weight_decay: 0.0001
 max_grad_norm: 1.0
 return_scale: 1.0
 hidden_dim: 128
-ff_dim: [512, 512, 512, 768]
+ff_dim: [512, 512, 512, 768]  # dimensions of the feedforward layers
 n_layer: 4
 n_head: 4
 ff_pdrop: 0.05
@@ -41,7 +41,7 @@ attn_pdrop: 0.05
 activation_function: gelu_new
 
 moe_config:
-  moe_layers_contrastive_and_balance: [3]
+  moe_layers_contrastive_and_balance: [3]  # the positions of the parallel moe layers
   task_hard_router: False
   use_top_k_indices: False
   add_softmax: False
@@ -49,7 +49,7 @@ moe_config:
 
   num_experts: 6
   num_selects: 2
-  expert_dim: 1536
+  expert_dim: 1536  # the dimension of total experts, for each expert, the dimension is expert_dim/num_experts
   gate_balance_loss_weight: 0.01
   gate_add_noise: True
   gate_noise_epsilon: 0.01
@@ -62,5 +62,5 @@ moe_config:
 
 # evaluation
 target_return: null
-eval_episodes: 30
-eval_horizon: 200
+eval_episodes: 30  # number of episodes for evaluation
+eval_horizon: 200  # context length

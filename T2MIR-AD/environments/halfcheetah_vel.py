@@ -1,7 +1,7 @@
 import numpy as np
+from typing import List
 
 from environments.tp_envs.half_cheetah_vel import HalfCheetahVelEnv as HalfCheetahVelEnv_
-from typing import List
 
 
 class HalfCheetahVelEnv(HalfCheetahVelEnv_):

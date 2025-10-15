@@ -1,7 +1,6 @@
 import math
 import torch
 import warnings
-
 from dataclasses import dataclass
 from torch import nn
 from torch.nn import functional as F
@@ -180,10 +179,10 @@ class TopKBalancedNoisyGate(nn.Module):
             else:
                 load = (scores_filtered > 0).sum(0)
                 if not self.add_noise and not self.warned:
-                    warnings.warn(
-                        'Gradient-trackable implementation for load calculation is only available when "add_noise=True". '
-                        'Training without noise will block the gradient from "load" path and lead to inconsistency in optimization objectives.'
-                    )
+                    # warnings.warn(
+                    #     'Gradient-trackable implementation for load calculation is only available when "add_noise=True". '
+                    #     'Training without noise will block the gradient from "load" path and lead to inconsistency in optimization objectives.'
+                    # )
                     self.warned = True
         else:
             load = (scores_filtered > 0).sum(0)

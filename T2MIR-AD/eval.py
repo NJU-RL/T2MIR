@@ -13,8 +13,9 @@ from algorithms.policy import DecisionTransformerMoE
 from algorithms.tools import set_seed, copy_files, data_loader, download_config, make_dir
 
 
+################################## parameters ##################################
 parser = argparse.ArgumentParser()
-parser.add_argument('env', type=str, choices=['darkroom-v0', 'point-robot-v0', 'cheetah-vel-v0', 'cheetah-vel-v3', 'walker-v0', 'reach-v2', 'push-v2'], default="cheetah-vel-v0")
+parser.add_argument('env', type=str, choices=['darkroom-v0', 'point-robot-v0', 'cheetah-vel-v0', 'cheetah-vel-v3', 'walker-v0', 'reach-v2', 'push-v2'], default='cheetah-vel-v0')
 parser.add_argument('id', type=int)
 parser.add_argument('--exp', type=str, help='experiment name')
 parser.add_argument('--start-ckpt', type=int, default=0, help='start evaluating from this checkpoint')
@@ -26,18 +27,20 @@ local_args = parser.parse_args()
 checkpoints = []
 print(checkpoints)
 
+############################### download config ################################
 args, config_path = download_config(local_args.env, return_config_path=True)
 args['device'] = torch.device('cuda', index=local_args.cuda) if torch.cuda.is_available() else torch.device('cpu')
 args['exp_name'] = local_args.exp
 args['eval_reset_seed'] = local_args.seed_eval  # used for evaluation reset environment
 assert args['eval_horizon'] % args['max_episode_steps'] == 0, "eval_horizon should be divisible by max_episode_steps"
 
-with open(f"../datasets/{args['env_name']}/{args['data_type']}/return_scale.json", 'r') as fp:
-    task_info = json.load(fp)
+########################## load the tasks information ##########################
+# with open(f"../datasets/{args['env_name']}/{args['data_type']}/return_scale.json", 'r') as fp:
+#     task_info = json.load(fp)
 # compute target return
 train_task_ids = sorted((set(range(args['num_tasks']))) - set(args['eval_tasks']))[:5]
 eval_task_ids = args['eval_tasks']
-target_returns = []
+# target_returns = []
 # for task_id in train_task_ids:
 #     target_returns.append(task_info[f"task_{task_id}"][1])
 # args['target_return_train'] = np.mean(target_returns)
@@ -46,6 +49,7 @@ target_returns = []
 #     target_returns.append(task_info[f"task_{task_id}"][1])
 # args['target_return_eval'] = np.mean(target_returns)
 
+#################################### logger ####################################
 logdir = make_dir(f"./runs/{args['env_name']}/{args['data_type']}/horizon-{args['train_episode_horizon']}/{local_args.exp}-seed_{local_args.seed}", ignore_exist=True)
 assert logdir.exists(), f"logdir {logdir} does not exist"
 (logdir / f"eval_{local_args.id}-seed_{local_args.seed_eval}").mkdir()
@@ -61,6 +65,7 @@ return_writer_eval.write(','.join(['timesteps', 'task_id'] + [f"episode_{i}" for
 success_writer_train.write(','.join(['timesteps', 'task_id'] + [f"episode_{i}" for i in range(args['eval_episodes'])]) + '\n')
 success_writer_eval.write(','.join(['timesteps', 'task_id'] + [f"episode_{i}" for i in range(args['eval_episodes'])]) + '\n')
 
+######################## get state and action dimension ########################
 with open(f"../datasets/{args['env_name']}/task_goals.pkl", 'rb') as fp:
     tasks = pickle.load(fp)
 env = gym.make(args['env_name'], tasks=tasks)
@@ -68,11 +73,13 @@ discrete_environment = isinstance(env.action_space, gym.spaces.Discrete)
 state_dim = np.prod(env.observation_space.shape)
 action_dim = env.action_space.n if discrete_environment else np.prod(env.action_space.shape)
 
+################################### set seed ###################################
 set_seed(local_args.seed, env)
 
 # print(f"Evaluation on train tasks target return: {args['target_return_train']}")
 # print(f"Evaluation on eval tasks target return: {args['target_return_eval']}")
 
+#################################### model #####################################
 policy = DecisionTransformerMoE(
     state_dim=state_dim,
     action_dim=action_dim,
@@ -90,6 +97,7 @@ policy = DecisionTransformerMoE(
     sigma_reparam=args.get('sigma_reparam', True),
 ).to(args['device'])
 
+################################## evaluation ##################################
 start_ckpt = args['eval_freq'] if local_args.start_ckpt == 0 else local_args.start_ckpt
 for ckpt in tqdm(sorted(checkpoints + list(range(start_ckpt, min(args['total_steps'], local_args.stop_ckpt)+1, args['eval_freq']))), leave=True, ncols=100):
     ckpt_dict = torch.load(logdir / f"checkpoints/policy_{ckpt}.pt", map_location=args['device'], weights_only=True)

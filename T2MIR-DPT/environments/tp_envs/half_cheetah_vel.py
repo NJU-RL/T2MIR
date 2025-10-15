@@ -11,7 +11,6 @@ class HalfCheetahVelEnv(HalfCheetahEnv):
         self._goal = self._goal_vel
         super(HalfCheetahVelEnv, self).__init__()
 
-
     def step(self, action):
         xposbefore = self.data.qpos[0]
         self.do_simulation(action, self.frame_skip)
@@ -28,7 +27,6 @@ class HalfCheetahVelEnv(HalfCheetahEnv):
             reward_ctrl=-ctrl_cost, task=self._task)
         return (observation, reward, done, done, infos)
 
-
     def sample_tasks(self, num_tasks, seed: int = 1337):
         np.random.seed(seed)
         velocities = np.random.uniform(0.0, 3.0, size=(num_tasks,))
@@ -36,10 +34,8 @@ class HalfCheetahVelEnv(HalfCheetahEnv):
         tasks = [{'velocity': velocity} for velocity in velocities]
         return tasks
 
-
     def get_all_task_idx(self):
         return range(len(self.tasks))
-
 
     def reset_task(self, idx):
         self._task = self.tasks[idx]

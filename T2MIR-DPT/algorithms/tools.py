@@ -1,9 +1,10 @@
+import os
 import pickle
+import random
 import shutil
 import torch
 import yaml
 import numpy as np
-
 from collections import OrderedDict
 from os.path import join
 from pathlib import Path
@@ -24,16 +25,13 @@ def copy_files(to_path: str, folders: List = [], files: List = [], parent: bool 
 
     for file in files:
         shutil.copy(file, path)
-        
-        
+
 def soft_update(target: Module, source: Module, tau: float) -> None:
     for target_param, param in zip(target.parameters(), source.parameters()):
         target_param.data.copy_(param.data * tau + target_param.data * (1 - tau))
-        
-        
+
 def hard_update(target: Module, source: Module) -> None:
     target.load_state_dict(source.state_dict())
-
 
 def weight_init_(m, gain: float = 1.) -> None:
     if isinstance(m, Linear):
@@ -47,16 +45,13 @@ def weight_init_(m, gain: float = 1.) -> None:
         if m.bias is not None:
             m.bias.data.zero_()
 
-
 def freeze(m: Module) -> None:
     for param in m.parameters():
         param.requires_grad = False
-        
 
 def unfreeze(m: Module) -> None:
     for param in m.parameters():
         param.requires_grad = True
-        
 
 def data_loader(dir_path: str, train_tasks: int, total_tasks: int, eval_task_ids: Optional[List[int]] = None, load_eval_tasks: bool = True):
     keys = ['states', 'actions', 'rewards', 'next_states', 'dones', 'masks']
@@ -108,7 +103,6 @@ def data_loader(dir_path: str, train_tasks: int, total_tasks: int, eval_task_ids
 
     return (train_datasets, train_lengths, train_idxs), (test_datasets, test_lengths, test_idxs)
 
-
 def query_data_loader(dir_path: str, train_tasks: int, total_tasks: int, eval_task_ids: Optional[List[int]] = None, load_eval_tasks: bool = True):
     keys = ['states', 'actions']
     train_lengths = []
@@ -151,27 +145,19 @@ def query_data_loader(dir_path: str, train_tasks: int, total_tasks: int, eval_ta
 
     return (train_datasets, train_lengths, train_idxs), (test_datasets, test_lengths, test_idxs)
 
-
 def set_seed(seed: int, env: Any) -> None:
     if seed != 0:
-        env.action_space.seed(seed)
+        random.seed(seed)
         np.random.seed(seed)
         torch.manual_seed(seed)
-        if torch.cuda.is_available():
-            torch.cuda.manual_seed(seed)
-            
+        torch.cuda.manual_seed(seed)
+        torch.backends.cudnn.benchmark = True
+        torch.backends.cudnn.deterministic = True
+        os.environ['PYTHONHASHSEED'] = str(seed)
+        env.action_space.seed(seed)
 
 def download_config(env_type: str, return_config_path: bool = False):
     config_path = './configs/args_' + env_type.replace('-', '_') + '.yaml'
-    with open(config_path, 'r') as fp:
-        args: Dict[str, Any] = yaml.load(fp, Loader=yaml.FullLoader)
-    if return_config_path:
-        return args, config_path
-    else:
-        return args
-
-def download_config_data(env_type: str, return_config_path: bool = False):
-    config_path = './configs_data/args_' + env_type.replace('-', '_') + '.yaml'
     with open(config_path, 'r') as fp:
         args: Dict[str, Any] = yaml.load(fp, Loader=yaml.FullLoader)
     if return_config_path:
@@ -186,11 +172,9 @@ def discount_cumsum(x: np.ndarray, gamma: float = 1.):
         discount_cumsum[t] = x[t] + gamma * discount_cumsum[t+1]
     return discount_cumsum
 
-
 def l2_normalize(x: torch.Tensor, dim: int = -1, eps: float = 1e-6):
     m = torch.rsqrt(torch.square(x).sum(dim=dim, keepdim=True) + eps)
     return x * m
-
 
 def make_dir(dir_path_: str, ignore_exist: bool = False):
     dir_path = Path(dir_path_)

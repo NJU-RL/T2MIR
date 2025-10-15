@@ -1,13 +1,13 @@
 import argparse
 import environments  # register environments
-import gymnasium as gym
 import json
 import math
-import numpy as np
 import pickle
 import torch
-import torch.nn.functional as F
 import wandb
+import gymnasium as gym
+import numpy as np
+import torch.nn.functional as F
 from pathlib import Path
 from torch.nn.utils import clip_grad_norm_
 from torch.optim import AdamW
@@ -31,6 +31,7 @@ def warmup_lr(steps: int):
             return 1.
 
 
+################################## parameters ##################################
 parser = argparse.ArgumentParser()
 parser.add_argument('env', type=str, choices=['darkroom-v0', 'point-robot-v0', 'cheetah-vel-v0', 'cheetah-vel-v3', 'walker-v0', 'reach-v2', 'push-v2'], default="cheetah-vel-v0")
 parser.add_argument('--exp', type=str, default='test', help='experiment name')
@@ -39,13 +40,15 @@ parser.add_argument('--cuda', type=int, default=0)
 parser.add_argument('--log-freq', type=int, default=100)
 local_args = parser.parse_args()
 
+############################### download config ################################
 args, config_path = download_config(local_args.env, return_config_path=True)
 args['device'] = torch.device('cuda', index=local_args.cuda) if torch.cuda.is_available() else torch.device('cpu')
 args['exp_name'] = local_args.exp
 assert args['training_tasks'] + len(args['eval_tasks']) == args['num_tasks']
 
-with open(f"../datasets/{args['env_name']}/{args['data_type']}/return_scale.json", 'r') as fp:
-    task_info = json.load(fp)
+########################## load the tasks information ##########################
+# with open(f"../datasets/{args['env_name']}/{args['data_type']}/return_scale.json", 'r') as fp:
+#     task_info = json.load(fp)
 # compute target return
 train_task_ids = sorted((set(range(args['num_tasks']))) - set(args['eval_tasks']))[:5]
 eval_task_ids = args['eval_tasks']
@@ -58,6 +61,7 @@ eval_task_ids = args['eval_tasks']
 #     target_returns.append(task_info[f"task_{task_id}"][1])
 # args['target_return_eval'] = np.mean(target_returns)
 
+#################################### logger ####################################
 logdir = make_dir(f"./runs/{args['env_name']}/{args['data_type']}/horizon-{args['train_episode_horizon']}/{local_args.exp}-seed_{local_args.seed}")
 copy_files(logdir, ['algorithms'], ['train.py', config_path])
 wandb.init(project=f"T2MIR-AD-{args['env_name']}", group=args['data_type'], name=f"{local_args.exp}-seed_{local_args.seed}", config=args)
@@ -71,6 +75,7 @@ return_writer_eval.write(','.join(['timesteps', 'task_id'] + [f"episode_{i}" for
 success_writer_train.write(','.join(['timesteps', 'task_id'] + [f"episode_{i}" for i in range(args['eval_episodes'])]) + '\n')
 success_writer_eval.write(','.join(['timesteps', 'task_id'] + [f"episode_{i}" for i in range(args['eval_episodes'])]) + '\n')
 
+######################## get state and action dimension ########################
 with open(f"../datasets/{args['env_name']}/task_goals.pkl", 'rb') as fp:
     tasks = pickle.load(fp)
 env = gym.make(args['env_name'], tasks=tasks)
@@ -78,8 +83,10 @@ discrete_environment = isinstance(env.action_space, gym.spaces.Discrete)
 state_dim = np.prod(env.observation_space.shape)
 action_dim = env.action_space.n if discrete_environment else np.prod(env.action_space.shape)
 
+################################### set seed ###################################
 set_seed(local_args.seed, env)
 
+################################### datasets ##################################
 dataset_path = Path(f"../datasets/{args['env_name']}/{args['data_type']}")
 train_data, train_length, train_idx = data_loader(dataset_path, args['training_tasks'], args['num_tasks'], eval_task_ids=args['eval_tasks'], load_eval_tasks=False)[0]
 train_data = {key: np.array(np.split(value, train_idx[1:], axis=0)) for key, value in train_data.items()}
@@ -89,6 +96,7 @@ del train_data, train_length, train_idx
 # print(f"Evaluation on train tasks target return: {args['target_return_train']}")
 # print(f"Evaluation on test tasks target return: {args['target_return_eval']}")
 
+#################################### model #####################################
 policy = DecisionTransformerMoE(
     state_dim=state_dim,
     action_dim=action_dim,
@@ -109,6 +117,7 @@ optimizer = AdamW(policy.parameters(), lr=args['lr'], weight_decay=args['weight_
 scheduler = LambdaLR(optimizer, lr_lambda=warmup_lr)
 model_structure(policy)
 
+################################### training ###################################
 global_steps = 0
 policy.train()
 pbar = tqdm(total=args['total_steps'], leave=True, ncols=100)

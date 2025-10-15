@@ -3,7 +3,6 @@ import gin
 import math
 import torch
 import torch.nn.functional as F
-
 from einops import rearrange, einsum
 from torch import nn
 from transformers.activations import ACT2FN
