@@ -1,6 +1,6 @@
 # Mixture-of-Experts Meets In-Context Reinforcement Learning
-**Wenhao Wu$^1$, Fuhong Liu$^1$, Haoru Li$^1$, Zican Hu$^1$, Daoyi Dong$^2$, Chunlin Chen$^1$, Zhi Wang$^1$**  
-$^1$Nanjing University &nbsp; $^2$University of Technology Sydney
+**Wenhao Wu<sup>1</sup>, Fuhong Liu<sup>1</sup>, Haoru Li<sup>1</sup>, Zican Hu<sup>1</sup>, Daoyi Dong<sup>2</sup>, Chunlin Chen<sup>1</sup>, Zhi Wang<sup>1</sup>**  
+<sup>1</sup>Nanjing University &nbsp; <sup>2</sup>University of Technology Sydney
 
 ## Overview
 Official codebase for T2MIR: Mixture-of-Experts Meets In-Context Reinforcement Learning.
@@ -33,7 +33,7 @@ pip install -e .
 We share our datasets vis [datasets](https://drive.google.com/drive/folders/1eDbgJ5J7L0fuTbNoOpbS-E48sUrJ1zLn?usp=sharing).
 
 ### Darkroom
-We use optimal policy to generate dataset for DarkRoom by adding a decreasing noise as in [AD$^\epsilon$](https://arxiv.org/abs/2312.12275).
+We use optimal policy to generate dataset for DarkRoom by adding a decreasing noise as in [AD<sup>ε</sup>](https://arxiv.org/abs/2312.12275).
 
 ### Mujoco
 We use SAC to train agents on different MuJoCo environments and collect datasets.  
