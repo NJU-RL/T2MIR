@@ -30,7 +30,7 @@ pip install -e .
 ```
 
 ## Data Collection
-We share our datasets vis [datasets](https://drive.google.com/drive/folders/1eDbgJ5J7L0fuTbNoOpbS-E48sUrJ1zLn?usp=sharing).
+We share our datasets via [datasets](https://drive.google.com/drive/folders/1eDbgJ5J7L0fuTbNoOpbS-E48sUrJ1zLn?usp=sharing).
 
 ### Darkroom
 We use optimal policy to generate dataset for DarkRoom by adding a decreasing noise as in [AD<sup>ε</sup>](https://arxiv.org/abs/2312.12275).
